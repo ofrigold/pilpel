@@ -1,10 +1,10 @@
-# PILPEL — Physics-Informed Latent Particles for Emitter Localization
+# PILPEL — Physics-Informed Self-Supervised Generative Model for 3D Localization Microscopy
 
 Official implementation of the paper:
 
-**Physics-Informed Self-Supervised Generative Model for 3D Localization Microscopy**
-Ofri Goldenberg, Tal Daniel, Dafei Xiao, Yael Shalev Ezra, and Yoav Shechtman
-[bioRxiv 2025](https://www.biorxiv.org/content/10.1101/2025.07.16.665148v2)
+**Self-supervised generation of realistic training data enables nanoscale localization in challenging conditions**
+Ofri Goldenberg, Tal Daniel, Dafei Xiao, Yael Shalev Ezra, Onit Alalouf, and Yoav Shechtman
+[bioRxiv 2026](https://www.biorxiv.org/content/10.1101/2025.07.16.665148v3)
 
 ## Overview
 
