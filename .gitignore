@@ -1,0 +1,52 @@
+# ======================
+# DATA
+# ======================
+*.tif
+data/*
+!data/microtubules_exp/
+!data/microtubules_exp/*.tiff
+
+# ======================
+# TRAINING OUTPUTS
+# ======================
+runs/
+checkpoints/
+generated/
+*_pilpel*/
+
+# ======================
+# CHECKPOINT FILES
+# ======================
+*.pth
+
+# ======================
+# PYTHON
+# ======================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# ======================
+# ENVIRONMENTS
+# ======================
+.venv/
+venv/
+.env
+
+# ======================
+# JUPYTER
+# ======================
+.ipynb_checkpoints/
+
+# ======================
+# OS / IDE
+# ======================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
