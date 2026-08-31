@@ -1,46 +1,43 @@
 {
   "dataset": {
-    "ds": "microtubules_exp",
-    "root": "data/microtubules_exp/"
+    "ds": "microtubules_2d",
+    "root": "data/microtubules_2d/"
   },
 
   "optics_dict": {
-    "phase_mask_root": "phase_masks/maskRec_extended_center_x260_y135.mat",
-    "Hmask": 255,
-    "NFP": 3.0,
-    "lamda": 0.56,
+    "psf_model": "2d",
+    "lamda": 0.64,
     "NA": 1.49,
-    "noil": 1.518,
+    "noil": 1.515,
     "nwater": 1.33,
     "pixel_size_CCD": 11,
-    "pixel_size_SLM": 40,
+    "pixel_size_SLM": 20,
     "M": 100,
     "f_4f": 20e4,
-    "est_gblur": 1.2,
-    "z_range": [0, 3.2]
+    "est_gblur": 1
   },
 
   "model": {
     "ch": 1,
     "kp_range": [-1, 1],
     "kp_activation": "tanh",
-    "image_size": 129,
-    "enc_channels": [32, 64, 128, 256],
+    "image_size": 65,
+    "enc_channels": [32, 64, 128],
     "prior_channels": [16, 32, 64],
     "pad_mode": "replicate",
     "n_kp": 1,
-    "n_kp_prior": 25,
-    "n_kp_enc": 25,
-    "patch_size": 32,
-    "anchor_s": 0.25,
+    "n_kp_prior": 36,
+    "n_kp_enc": 36,
+    "patch_size": 16,
+    "anchor_s": 0.5,
     "learned_feature_dim": 10,
-    "bg_learned_feature_dim": 10,
+    "bg_learned_feature_dim": 20,
     "dropout": 0.0,
     "use_resblock": true,
     "use_correlation_heatmaps": false,
     "filtering_heuristic": "max_corr",
     "norm01_flag": true,
-    "zero_close_psfs_flag": 15,
+    "zero_close_psfs_flag": 3,
     "read_noise": true
   },
 

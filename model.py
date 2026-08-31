@@ -10,7 +10,7 @@ from modules import ParticleAttributeEncoder, ParticleFeaturesEncoder
 # util functions
 from utils.util_func import reparameterize, spatial_transform, calc_model_size
 from utils.loss_functions import ChamferLossKL, calc_kl, calc_reconstruction_loss, VGGDistance, calc_kl_beta_dist
-from physics import PhysicalLayer_mask_rec, Normalize01, Croplayer
+from physics import PhysicalLayer_mask_rec, PhysicalLayer_mask_rec2D, Normalize01, Croplayer
 import torchvision
 
 class FgDLP(nn.Module):
@@ -44,7 +44,11 @@ class FgDLP(nn.Module):
         self.sigma = sigma
         self.dropout = dropout
         self.kp_range = kp_range
-        self.z_range = optics_dict['z_range']
+        self.psf_model = optics_dict.get('psf_model', '3d')
+        assert self.psf_model in ['2d', '3d'], f'unknown psf model: {self.psf_model}'
+        assert self.psf_model == '2d' or 'phase_mask_root' in optics_dict, \
+            "a '3d' psf model needs optics_dict['phase_mask_root']; set 'psf_model': '2d' for a mask-free run"
+        self.z_range = optics_dict.get('z_range', None)
         self.n_kp = n_kp
         self.n_kp_total = n_kp_prior
         self.n_kp_prior = n_kp_prior
@@ -93,7 +97,10 @@ class FgDLP(nn.Module):
         # object decoder
         self.object_dec = ObjectDecoderCNN(patch_size=(self.obj_patch_size, self.obj_patch_size), num_chans=2,
                                            bottleneck_size=learned_feature_dim, use_resblock=self.use_resblock)
-        self.physical_layer = PhysicalLayer_mask_rec(self.optics_dict, self.image_size)
+        if self.psf_model == '2d':
+            self.physical_layer = PhysicalLayer_mask_rec2D(self.optics_dict, self.image_size)
+        else:
+            self.physical_layer = PhysicalLayer_mask_rec(self.optics_dict, self.image_size)
         self.init_weights()
 
     def get_parameters(self, prior=True, encoder=True, decoder=True):
@@ -184,7 +191,10 @@ class FgDLP(nn.Module):
 
         # final position
         mu_tot = z_base + mu_offset
-        mu_defocus_tot = defocus_base + mu_defocus_offset
+        if self.psf_model == '2d':
+            mu_defocus_tot = torch.zeros_like(defocus_base)
+        else:
+            mu_defocus_tot = defocus_base + mu_defocus_offset
 
 
         obj_on_a = lobj_on_a.exp().clamp_min(1e-5)
@@ -362,7 +372,10 @@ class FgDLP(nn.Module):
                                        *dec_objects.shape[1:])  # [bs, n_kp, 2, patch_size, patch_size]
         # generate PSF
         z_kp_um = z_kp[:, :, [1, 0]] * (self.image_size//2 * self.optics_dict['pixel_size_CCD']/self.optics_dict['M'])
-        PSFs = self.physical_layer(z_kp_um, z_defocus)
+        if self.psf_model == '2d':
+            PSFs = self.physical_layer(z_kp_um)
+        else:
+            PSFs = self.physical_layer(z_kp_um, z_defocus)
 
         if self.zero_close_psfs_flag:
             psf_on_new = self.zero_close_coordinates_corr(z_kp, psf_on, distance_threshold=self.zero_close_psfs_flag*2/self.image_size)
@@ -432,7 +445,10 @@ class FgDLP(nn.Module):
 
         # Generate PSF
         z_psf_um = z_psf[:, :, [1, 0]] * (self.image_size//2 * self.optics_dict['pixel_size_CCD']/self.optics_dict['M'])
-        PSFs = self.physical_layer(z_psf_um, z_defocus)
+        if self.psf_model == '2d':
+            PSFs = self.physical_layer(z_psf_um)
+        else:
+            PSFs = self.physical_layer(z_psf_um, z_defocus)
 
         if self.zero_close_psfs_flag:
             psf_on_new = self.zero_close_coordinates_corr(z_psf, psf_on,

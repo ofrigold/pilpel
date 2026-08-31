@@ -13,7 +13,7 @@ from trainer import train
 
 DEVICE = 'cuda:0'  # GPU index for this machine; falls back to CPU if unavailable
 
-CONFIG = 'configs/microtubules_exp.json'
+CONFIG = 'configs/microtubules_3d.json'
 
 def build_config() -> dict:
     config = get_config(CONFIG)

@@ -3,8 +3,10 @@
 # ======================
 *.tif
 data/*
-!data/microtubules_exp/
-!data/microtubules_exp/*.tiff
+!data/microtubules_3d/
+!data/microtubules_3d/*.tiff
+!data/microtubules_2d/
+!data/microtubules_2d/*.tiff
 
 # ======================
 # TRAINING OUTPUTS

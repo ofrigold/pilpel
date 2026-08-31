@@ -9,7 +9,7 @@ import torch
 import torch.nn.functional as F
 import torch.nn as nn
 from utils.util_func import spatial_transform, generate_correlation_maps
-from physics import PhysicalLayer_mask_rec, Normalize01
+from physics import PhysicalLayer_mask_rec, PhysicalLayer_mask_rec2D, Normalize01
 
 
 # ResBlock from: https://pytorch.org/vision/0.8/_modules/torchvision/models/resnet.html
@@ -169,13 +169,22 @@ class AlternativeSpatialSoftmaxKP3D(torch.nn.Module):
 
     def __init__(self, optics_dict, kp_range=(-1, 1), image_size=None):
         super().__init__()
-        self.dz = 21
-        self.physical_layer = PhysicalLayer_mask_rec(optics_dict, W=image_size)
+        self.psf_model = optics_dict.get('psf_model', '3d')
+        if self.psf_model == '2d':
+            self.dz = 1
+            self.clear_zone = 1
+            self.physical_layer = PhysicalLayer_mask_rec2D(optics_dict, W=image_size)
+            self.defocus_vect = None
+            self.psf_dict = self.physical_layer(torch.zeros((self.dz, 1, 2)))
+        else:
+            self.dz = 21
+            self.clear_zone = 8
+            self.physical_layer = PhysicalLayer_mask_rec(optics_dict, W=image_size)
+            self.defocus_vect = torch.linspace(optics_dict['z_range'][0], optics_dict['z_range'][1], self.dz).view(-1,1,1)
+            self.psf_dict = self.physical_layer(torch.zeros((self.dz,1,2)), self.defocus_vect)
         self.psf_crop = self.physical_layer.psf_crop
-        self.defocus_vect = torch.linspace(optics_dict['z_range'][0], optics_dict['z_range'][1], self.dz).view(-1,1,1)
-        self.psf_dict = self.physical_layer(torch.zeros((self.dz,1,2)), self.defocus_vect)
         self.kp_range = kp_range
-        self.z_range = optics_dict['z_range']
+        self.z_range = optics_dict.get('z_range', None)
         self.norm01 = Normalize01()
 
     def central_crop(self, patch, crop_size):
@@ -194,7 +203,7 @@ class AlternativeSpatialSoftmaxKP3D(torch.nn.Module):
 
         corr_maps = normalized_cross_correlation(patches01, psfs)
 
-        clear_zone = 8
+        clear_zone = self.clear_zone
         crop_size = int(corr_maps.shape[-1] - clear_zone*2)
         corr_maps = self.central_crop(corr_maps, crop_size)
 
@@ -208,11 +217,14 @@ class AlternativeSpatialSoftmaxKP3D(torch.nn.Module):
         x_indices = torch.clamp(flat_indices % W_prime + clear_zone, 0, width-1)
         z_indices = template_indices
 
-        z_axis = torch.linspace(self.z_range[0], self.z_range[1], self.dz, device=device)
         y_axis = torch.linspace(self.kp_range[0], self.kp_range[1], height, device=device)
         x_axis = torch.linspace(self.kp_range[0], self.kp_range[1], width, device=device)
 
-        kp_d = z_axis[z_indices]
+        if self.psf_model == '2d':
+            kp_d = torch.zeros_like(z_indices, dtype=patches.dtype)
+        else:
+            z_axis = torch.linspace(self.z_range[0], self.z_range[1], self.dz, device=device)
+            kp_d = z_axis[z_indices]
         kp_h = y_axis[y_indices]
         kp_w = x_axis[x_indices]
 

@@ -18,13 +18,13 @@ from utils.util_func import get_config, normalize_01
 
 
 DEVICE = 'cuda:0'  # GPU index for this machine; falls back to CPU if unavailable
-RUN_NAME = 'runs/250826_145106_microtubules_exp/'
+RUN_NAME = 'runs/250826_145106_microtubules_3d/'
 OUTPUT_ROOT = 'generated'
 SEED = 1
 
 PLOT_SANITY_CHECK = True    # overlay the labels on the first 3 examples, then carry on
 BATCH_SIZE = 16              # batch size for latent extraction
-MAX_SAMPLES = 5#10000          # stop after this many generated images
+MAX_SAMPLES = 10000          # stop after this many generated images
 
 
 def set_seed(seed):
@@ -92,9 +92,12 @@ def perturb_latents(model, latents, psf_threshold=0.1):
     z = latents['z']
     z_psf = torch.clamp(z + torch.randn_like(z) / 80, -1, 1)
 
-    z_min = model.optics_dict['z_range'][0]
-    z_max = model.optics_dict['z_range'][1] - 0.001
-    z_defocus = (z_max - z_min) * torch.rand_like(latents['z_defocus']) + z_min
+    if model.fg_module.psf_model == '2d':
+        z_defocus = torch.zeros_like(latents['z_defocus'])
+    else:
+        z_min = model.optics_dict['z_range'][0]
+        z_max = model.optics_dict['z_range'][1] - 0.001
+        z_defocus = (z_max - z_min) * torch.rand_like(latents['z_defocus']) + z_min
 
     psf_on = torch.nn.Threshold(psf_threshold, 0.0)(latents['psf_on'])
     if not (psf_on > 0).any():
@@ -128,13 +131,18 @@ def psf_coordinates(model, perturbed, psf_on):
     z_psf = perturbed['z_psf']
     z_defocus = perturbed['z_defocus']
 
+    is_2d = model.fg_module.psf_model == '2d'
+
     xyz = []
     for b, row in enumerate(psf_on):
         active = torch.nonzero(row, as_tuple=True)[0]
         xx = z_psf[b, active, 1].cpu().numpy() * half_fov_um
         yy = z_psf[b, active, 0].cpu().numpy() * half_fov_um
-        zz = z_defocus[b, active, 0].cpu().numpy()
-        xyz.append(np.stack([xx, yy, zz], axis=1))
+        if is_2d:
+            xyz.append(np.stack([xx, yy], axis=1))
+        else:
+            zz = z_defocus[b, active, 0].cpu().numpy()
+            xyz.append(np.stack([xx, yy, zz], axis=1))
 
     return xyz
 

@@ -48,10 +48,7 @@ class Croplayer(nn.Module):
 
 
 def calc_bfp_grids(phase_mask, optics_dict):
-    if 'Hmask' in optics_dict:
-        N = optics_dict['Hmask']
-    else:
-        N = phase_mask.shape[0]
+    N = phase_mask.shape[0]
 
     NFP = optics_dict['NFP']
     lamda = optics_dict['lamda']
@@ -205,7 +202,7 @@ class MaskPhasesToPSFs2D(nn.Module):
         self.Ygrid = nn.Parameter(bfp_grids['Ygrid'], requires_grad=False)
         self.Zgrid = nn.Parameter(bfp_grids['Zgrid'], requires_grad=False)
 
-    def forward(self, xy, angles=None):
+    def forward(self, xy):
 
         phase_lat = torch.exp(1j * (xy[:, :, [0]].unsqueeze(-1) * self.Xgrid + xy[:, :, [1]].unsqueeze(-1) * self.Ygrid))
 
@@ -258,8 +255,8 @@ class PhysicalLayer_mask_rec2D(nn.Module):
         self.blur = transforms.GaussianBlur(5, sigma=optics_dict['est_gblur'])
         self.norm01 = Normalize01()
 
-    def forward(self, xy, angles=None):
-        PSF4D = self.MaskPhasesToPSFs(xy, angles=angles)
+    def forward(self, xy):
+        PSF4D = self.MaskPhasesToPSFs(xy)
 
         # blur each emitter with slightly different gaussian
         images4D_blur = self.blur(PSF4D)

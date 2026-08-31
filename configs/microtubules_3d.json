@@ -1,0 +1,81 @@
+{
+  "dataset": {
+    "ds": "microtubules_3d",
+    "root": "data/microtubules_3d/"
+  },
+
+  "optics_dict": {
+    "psf_model": "3d",
+    "phase_mask_root": "phase_masks/maskRec_extended_center_x260_y135.mat",
+    "NFP": 3.0,
+    "lamda": 0.56,
+    "NA": 1.49,
+    "noil": 1.518,
+    "nwater": 1.33,
+    "pixel_size_CCD": 11,
+    "pixel_size_SLM": 40,
+    "M": 100,
+    "f_4f": 20e4,
+    "est_gblur": 1.2,
+    "z_range": [0, 3.2]
+  },
+
+  "model": {
+    "ch": 1,
+    "kp_range": [-1, 1],
+    "kp_activation": "tanh",
+    "image_size": 129,
+    "enc_channels": [32, 64, 128, 256],
+    "prior_channels": [16, 32, 64],
+    "pad_mode": "replicate",
+    "n_kp": 1,
+    "n_kp_prior": 25,
+    "n_kp_enc": 25,
+    "patch_size": 32,
+    "anchor_s": 0.25,
+    "learned_feature_dim": 10,
+    "bg_learned_feature_dim": 10,
+    "dropout": 0.0,
+    "use_resblock": true,
+    "use_correlation_heatmaps": false,
+    "filtering_heuristic": "max_corr",
+    "norm01_flag": true,
+    "zero_close_psfs_flag": 15,
+    "read_noise": true
+  },
+
+  "optimization": {
+    "batch_size": 4,
+    "num_epochs": 50,
+    "lr": 1e-5,
+    "weight_decay": 0.0,
+    "adam_betas": [0.9, 0.999],
+    "adam_eps": 0.0001,
+    "scheduler_gamma": 0.95,
+    "warmup_epoch": 0
+  },
+
+    "loss": {
+    "recon_loss_type": "mse",
+    "beta_rec": 1.0,
+    "beta_kl": 0.1,
+    "kl_balance": 0.001
+  },
+
+  "run": {
+    "run_prefix": "",
+    "load_model": false,
+    "pretrained_path": null,
+    "eval_epoch_freq": 1,
+    "eval_im_metrics": false,
+    "train_enc_prior": true
+  },
+
+  "priors": {
+    "sigma": 1.0,
+    "scale_std": 0.3,
+    "offset_std": 0.2,
+    "obj_on_alpha": 0.1,
+    "obj_on_beta": 0.1
+  }
+}
