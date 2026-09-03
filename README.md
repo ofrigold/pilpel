@@ -1,4 +1,4 @@
-# PILPEL — Physics-Informed Self-Supervised Generative Model for Localization Microscopy
+# PILPEL - Physics-Informed Self-Supervised Generative Model for Localization Microscopy
 
 Official implementation of the paper:
 
