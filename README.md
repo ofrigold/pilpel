@@ -16,14 +16,17 @@ PILPEL is a physics-informed self-supervised generative model for 2D and 3D sing
 
 Trained directly on unlabeled experimental images, PILPEL generates fully labeled, realistic synthetic training datasets with known emitter locations. These datasets substantially improve the performance of supervised localization networks, particularly in challenging scenarios such as complex backgrounds and low signal-to-noise ratios.
 
-## Installation
+## System requirements and Installation
+- We provide an environment.yml file which installs the required packages in a conda environment named *pilpel*. Alternatively, use `pip` to install `requirements.txt`.
 
 ```bash
 conda env create -f environment.yml
 conda activate pilpel
 ```
 
-Alternatively, use `pip` to install `requirements.txt`.
+  - The software was tested on a *Linux* system running Ubuntu 18.04.6 LTS.
+  - Training and evaluation were run on a workstation with 192 GB of memory, an Intel(R) Xeon(R) Silver 4114 2.20 GHz
+  CPU, and a single NVIDIA TITAN RTX GPU with 24 GB of video memory.
 
 ## Setup
 
