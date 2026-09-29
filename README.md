@@ -24,9 +24,10 @@ conda env create -f environment.yml
 conda activate pilpel
 ```
 
-  - The software was tested on a *Linux* system running Ubuntu 18.04.6 LTS.
-  - Training and evaluation were run on a workstation with 192 GB of memory, an Intel(R) Xeon(R) Silver 4114 2.20 GHz
-  CPU, and a single NVIDIA TITAN RTX GPU with 24 GB of video memory.
+- The software was tested on a *Linux* system running Ubuntu 18.04.6 LTS.
+- Training and evaluation were run on a workstation with 192 GB of memory, an Intel(R) Xeon(R) Silver 4114 2.20 GHz
+CPU, and a single NVIDIA TITAN RTX GPU with 24 GB of video memory.
+- Typical install time is ~15 minutes.
 
 ## Setup
 
@@ -83,6 +84,9 @@ The model checkpoint, config, run log and per-epoch figures are saved to `runs/<
 Open `generate_dataset.py`, point `RUN_NAME` at a trained run, set `DEVICE` for your machine, and choose number of training samples wanted.
 
 This produces synthetic TIFF images and a pickle file of ground-truth localizations, which can be used to train a supervised localization network such as [DeepSTORM3D](https://github.com/EliasNehme/DeepSTORM3D). The labels are `x, y, z` under a 3D config and `x, y` under a 2D one.
+
+
+- Expected run time for the two demo datasets, using the provided configs (50 epochs) on the hardware above: ~1–2 hours for `microtubules_3d`, ~30–40 minutes for `microtubules_2d`, and a few minutes for inference (`generate_dataset.py`).
 
 ## Acknowledgements
 
